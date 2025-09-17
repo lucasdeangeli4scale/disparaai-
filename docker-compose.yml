@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: disparaai-postgres
+    environment:
+      POSTGRES_DB: disparaai
+      POSTGRES_USER: disparaai
+      POSTGRES_PASSWORD: disparaai123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"              # atenção: conflita se já houver outro Postgres exposto
+    restart: unless-stopped
+    networks:
+      - disparaai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U disparaai -d disparaai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  disparaai:
+    build:
+      context: .                 # raiz do projeto (onde estão Dockerfile, pyproject, etc.)
+      dockerfile: Dockerfile
+    container_name: disparaai-app
+    ports:
+      - "8000:8000"
+    environment:
+      # Database Configuration
+      DATABASE_URL: postgresql+psycopg://disparaai:disparaai123@postgres:5432/disparaai
+
+      # Evolution API Configuration (REQUIRED)
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL:-http://localhost:8080}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
+      EVOLUTION_INSTANCE_NAME: ${EVOLUTION_INSTANCE_NAME}
+
+      # AI API Keys (at least one required)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+      # Application Configuration
+      PORT: 8000
+      DEBUG: "false"
+      LOG_LEVEL: info
+      TESTING_MODE: ${TESTING_MODE:-false}
+      TEST_OWNER_PHONE: ${TEST_OWNER_PHONE}
+
+      # Webhook Configuration
+      WEBHOOK_URL: ${WEBHOOK_URL}
+      WHATSAPP_WEBHOOK_TOKEN: ${WHATSAPP_WEBHOOK_TOKEN}
+
+      # File Processing
+      MAX_FILE_SIZE_MB: 10
+    depends_on:
+      - postgres                 # em Standalone é lista simples (sem 'condition')
+    restart: unless-stopped
+    volumes:
+      - disparaai-logs:/app/logs
+    networks:
+      - disparaai-network
+
+volumes:
+  postgres_data:
+    driver: local
+  disparaai-logs:
+    driver: local
+
+networks:
+  disparaai-network:
+    driver: bridge
