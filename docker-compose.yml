@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  disparaai:
+    image: joaopella/disparaai:1.0.0   # use a tag que você publicou
+    ports:
+      - "8000:8000"
+    environment:
+      # >>> Ajuste o host abaixo para o NOME DO SERVIÇO do seu Postgres na rede 4SNetwork
+      DATABASE_URL: "postgresql+psycopg://disparaai:disparaai123@<POSTGRES_SERVICE_NAME>:5432/disparaai"
+
+      EVOLUTION_API_URL: "${EVOLUTION_API_URL:-https://evolution.4scale.com.br}"
+      EVOLUTION_API_KEY: "${EVOLUTION_API_KEY}"
+      EVOLUTION_INSTANCE_NAME: "${EVOLUTION_INSTANCE_NAME:-4scale}"
+
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+
+      PORT: "8000"
+      DEBUG: "false"
+      LOG_LEVEL: "info"
+      TESTING_MODE: "${TESTING_MODE:-false}"
+      TEST_OWNER_PHONE: "${TEST_OWNER_PHONE}"
+
+      WEBHOOK_URL: "${WEBHOOK_URL}"
+      WHATSAPP_WEBHOOK_TOKEN: "${WHATSAPP_WEBHOOK_TOKEN}"
+
+      MAX_FILE_SIZE_MB: "10"
+    networks:
+      - 4SNetwork
+    # Swarm não aceita 'restart:'; use deploy.restart_policy
+    deploy:
+      restart_policy:
+        condition: any
+      resources:
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+        limits:
+          cpus: "1"
+          memory: 1.5G
+
+networks:
+  4SNetwork:
+    external: true
+    name: 4SNetwork
