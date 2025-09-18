@@ -1,0 +1,55 @@
+# DisparaAI - Portainer Stack Template
+#
+# Instructions for Portainer deployment:
+# 1. Copy this file content
+# 2. Go to Portainer > Stacks > Add stack
+# 3. Paste this content
+# 4. Configure the environment variables below
+# 5. Deploy the stack
+
+
+services:
+  disparaai:
+    image: docker.io/joaopella/disparaai:latest
+    container_name: disparaai-app
+    ports:
+      - "8000:8000"
+    environment:
+      # Database Configuration
+      - DATABASE_URL=postgresql://disparaai:disparaai123@postgres:5432/disparaai
+
+      # Evolution API Configuration (CONFIGURE THESE!)
+      - EVOLUTION_API_URL=${EVOLUTION_API_URL}
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+      - EVOLUTION_INSTANCE_NAME=${EVOLUTION_INSTANCE_NAME}
+
+      # AI API Keys (CONFIGURE AT LEAST ONE!)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
+      # Application Configuration
+      - PORT=8000
+      - DEBUG=false
+      - LOG_LEVEL=info
+      - TESTING_MODE=${TESTING_MODE:-false}
+      - TEST_OWNER_PHONE=${TEST_OWNER_PHONE}
+
+      # Webhook Configuration
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - WHATSAPP_WEBHOOK_TOKEN=${WHATSAPP_WEBHOOK_TOKEN}
+
+      # File Processing
+      - MAX_FILE_SIZE_MB=10
+      
+    networks:
+      - 4SNetwork
+    volumes:
+      - disparaai-logs:/app/logs
+
+volumes:
+  disparaai-logs:
+    driver: local
+
+networks:
+  4SNetwork:
+    external: true
