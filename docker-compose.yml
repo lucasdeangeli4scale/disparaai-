@@ -10,7 +10,7 @@
 
 services:
   disparaai:
-    image: joaopella/disparaai:latest
+    image: joaopella/disparaai:1.0.0
     container_name: disparaai-app
     ports:
       - "8000:8000"
