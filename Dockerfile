@@ -9,13 +9,16 @@ WORKDIR /app
 
 # Dependências de sistema + curl (healthcheck) + UV
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ libpq-dev curl \
- && rm -rf /var/lib/apt/lists/* \
- && pip install --no-cache-dir uv
+  gcc g++ libpq-dev curl \
+ && rm -rf /var/lib/apt/lists/*
+
+# 'uv' is not a real dependency; install only system packages and curl
 
 # Instala deps do projeto a partir do pyproject (melhor cache)
 COPY pyproject.toml ./
-RUN uv pip install --system --no-cache .
+# Install project dependencies from pyproject using pip
+# use python -m pip to ensure correct interpreter and avoid stray 'uv' prefix
+RUN python -m pip install --no-cache-dir .
 
 # Copia o código
 COPY . .
