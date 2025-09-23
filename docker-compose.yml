@@ -2,7 +2,7 @@ services:
   disparaai:
     image: joaopella/disparaai:1.0.0    
     environment:
-      - DATABASE_URL=postgresql://disparaai:disparaai123@postgres:5432/disparaai
+      - DATABASE_URL=postgresql://disparaai:disparaai123@postgres_postgres:5432/disparaai
 
       - EVOLUTION_API_URL=${EVOLUTION_API_URL}
       - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
